@@ -12,19 +12,15 @@ def train_test_split(data):
     Script for reading and splitting data from datafiles.
     returns testdata and trainingdata
     """
-    testdata = data.iloc[1::2,:]
-    traindata = data.iloc[::2,:]
+    testdata = data.iloc[1::2,:]#skips every other line, starting from line 1
+    traindata = data.iloc[::2,:]# --||-- starting from line 0
     
     return testdata, traindata
     
 def dist(a,b):
     return np.linalg.norm(a - b, axis=1)
 
-def nearestneighbour(filename):
-    data = pd.read_csv(filename, header=None, sep='\s+')
-    test, train = train_test_split(data)
-    test = test.to_numpy()
-    train = train.to_numpy()
+def nearestneighbour(train, test):
 
     features = test[:,1:].shape[1] 
 
@@ -81,23 +77,27 @@ def nearestneighbour(filename):
     dim1_err /= float(train.shape[0])
     dim2_err /= float(train.shape[0])
     dim3_err /= float(train.shape[0])
+   
     
     if features > 3:
          
         dim4_err /= float(train.shape[0])
-        return (dim1_err, dim2_err, dim3_err, dim4_err), (dim1_comb, dim2_comb, dim3_comb, dim4_comb) 
-    return (dim1_err, dim2_err, dim3_err), (dim1_comb, dim2_comb, dim3_comb)
+        return (dim1_err, dim2_err, dim3_err, dim4_err), (dim1_comb_list, dim2_comb_list, dim3_comb_list, dim4_comb_list) 
+    return (dim1_err, dim2_err, dim3_err), (dim1_comb_list, dim2_comb_list, dim3_comb_list)
 
 
-def min_err_rate(filename):
-    data = pd.read_csv(filename, header=None, sep='\s+')
-    test, train = train_test_split(data)
-    test = test.to_numpy()
-    train = train.to_numpy()
-
-    train_class1 = train[train[:,0] == 1] #train data of class 1
-    train_class2 = train[train[:,0] == 2]
+def min_err_rate(train, test, bc):
     
+    test_ = test[:, 1:]
+    test_ = test_[:, bc] #best combo
+    train_ = train[:,1:] #neglecting true bool for now
+    train_ = train_[:,bc]
+    
+    idx1 = train[:, 0] == 1
+    idx2 = ~idx1
+    train_class1 = train_[idx1]
+    train_class2 = train_[idx2]
+
     # a prioi probability
     prio = (len(train_class1)/len(train) ,  len(train_class2)/len(train))
 
@@ -109,13 +109,10 @@ def min_err_rate(filename):
     W = (-0.5*np.linalg.pinv(cov[0]), -0.5*np.linalg.pinv(cov[1]))
     w = (np.linalg.pinv(cov[0]) @ my[0].T, np.linalg.pinv(cov[1]) @ my[1].T) 
 
-    #W10 = -0.5*my[0] @ w[0] - 0.5* np.log(np.linalg.det(cov[0])) + no.log(prio[0]) 
-    W10 = -0.5*my[0] @ np.linalg.pinv(cov[0]) @ my[0].T - 0.5* np.log(np.linalg.det(cov[0])) + no.log(prio[0])
-    #W20 = -0.5*my[1] @ w[1] - 0.5* np.log(np.linalg.det(cov[1])) + no.log(prio[1]) 
-    W20 = -0.5*my[1] @ np.linalg.pinv(cov[1]) @ my[1].T - 0.5* np.log(np.linalg.det(cov[1])) + no.log(prio[1])
+    W10 = -0.5*my[0] @ w[0] - 0.5* np.log(np.linalg.det(cov[0])) + np.log(prio[0]) 
+    W20 = -0.5*my[1] @ w[1] - 0.5* np.log(np.linalg.det(cov[1])) + np.log(prio[1]) 
 
     
-
 
 def plot_featurespace(filename):
     #data = pd.read_csv(filename, header = None)
@@ -136,6 +133,19 @@ def plot_featurespace(filename):
     plt.show()
 
 if __name__ == '__main__':
-    nearestneighbour('ds-1.txt')
+    
+    
+    for i in [1,2,3]:
+        data = pd.read_csv('ds-{}.txt'.format(i), header=None, sep='\s+')
+        test, train = train_test_split(data)
+        test = test.to_numpy()
+        train = train.to_numpy()
+
+        error,combinations = nearestneighbour(train, test) 
+        
+        for err, comb in zip(error, combinations):
+            
+            mer = min_err_rate(train, test, comb[np.argmin(err)])
+            break
     #min_err_rate('ds-2.txt')
     #plot_featurespace('ds-2.txt')
