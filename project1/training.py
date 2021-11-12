@@ -111,11 +111,23 @@ def min_err_rate(train, test, bc):
 
     W10 = -0.5*my[0] @ w[0] - 0.5* np.log(np.linalg.det(cov[0])) + np.log(prio[0]) 
     W20 = -0.5*my[1] @ w[1] - 0.5* np.log(np.linalg.det(cov[1])) + np.log(prio[1]) 
+    Wi0 = (W10, W20)
 
-    
+    err_rate = 0
+    for i in range(test_.shape[0]):
+        g1 = test_[i]@W[0]@test_[i].T + w[0].T@test_[i].T + Wi0[0]
+        g2 = test_[i]@W[1]@test_[i].T + w[1].T@test_[i].T + Wi0[1]
+
+        if g1-g2 > 0:
+            res = test[i,0] != 1
+        else:
+            res = test[i,0] != 2
+        err_rate += res
+    err_rate /= test_.shape[0]
+
+    return err_rate
 
 def plot_featurespace(filename):
-    #data = pd.read_csv(filename, header = None)
     data = pd.read_csv(filename, header=None, sep='\s+')
     data = data.to_numpy()
     fig = plt.figure()
@@ -132,10 +144,32 @@ def plot_featurespace(filename):
 
     plt.show()
 
+def least_squares(train, test, bc):
+    test_ = test[:, 1:]
+    test_ = test_[:, bc] #best combo
+    train_ = train[:,1:] #neglecting true bool for now
+    train_ = train_[:,bc]
+
+    idx1 = train[:, 0] == 1
+    idx2 = ~idx1
+    train_class1 = train_[idx1]
+    train_class2 = train_[idx2]
+    print(train_class1)
+
+
+    
+    a = np.linalg.pinv(Y.T.dot(Y)).dot(Y.T.dot(b))
+    
+
+
+
+def g(a,y):
+    return a.T.dot(y.T) 
+
 if __name__ == '__main__':
     
     
-    for i in [1,2,3]:
+    for i in [1]:
         data = pd.read_csv('ds-{}.txt'.format(i), header=None, sep='\s+')
         test, train = train_test_split(data)
         test = test.to_numpy()
@@ -143,9 +177,18 @@ if __name__ == '__main__':
 
         error,combinations = nearestneighbour(train, test) 
         
-        for err, comb in zip(error, combinations):
+        for err, _comb in zip(error, combinations):
             
-            mer = min_err_rate(train, test, comb[np.argmin(err)])
-            break
+            mer = min_err_rate(train, test, _comb[np.argmin(err)])
+            #lst = least_squares(train, test, _comb[np.argmin(err)]) 
+            print("file: ds-{}.txt".format(i))
+            print('--------------------------------------------------')
+            print('best combo: {}'.format(_comb[np.argmin(err)])) 
+            print('--------------------------------------------------')
+            print('nearest neigbour: {}'.format(error[np.argmin(err)])) 
+            print('--------------------------------------------------')
+            print('minimum error rate: {}'.format(mer))
+            
+
     #min_err_rate('ds-2.txt')
     #plot_featurespace('ds-2.txt')
