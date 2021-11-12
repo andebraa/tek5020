@@ -77,12 +77,22 @@ def nearestneighbour(train, test):
     dim1_err /= float(train.shape[0])
     dim2_err /= float(train.shape[0])
     dim3_err /= float(train.shape[0])
-   
-    
+    """
+    print('------------------')
+    print('dim1_err: {}\n'.format(dim1_err))
+    print('dim2_err: {}\n'.format(dim2_err))
+    print('dim3_err: {}\n'.format(dim3_err))
+    """
+
     if features > 3:
          
         dim4_err /= float(train.shape[0])
+
+        #print('dim4_err: {}\n'.format(dim4_err))
+        #print('------------------------\n\n')
         return (dim1_err, dim2_err, dim3_err, dim4_err), (dim1_comb_list, dim2_comb_list, dim3_comb_list, dim4_comb_list) 
+    
+    #print('------------------------\n\n')
     return (dim1_err, dim2_err, dim3_err), (dim1_comb_list, dim2_comb_list, dim3_comb_list)
 
 
@@ -135,12 +145,12 @@ def plot_featurespace(filename):
     
     class_1 = data[data[:,0] == 1]
     class_2 = data[data[:,0] == 2]
-    ax.scatter(class_1[:,1], class_1[:,2], class_1[:,3], label ='class 1')
-    ax.scatter(class_2[:,1], class_2[:,2], class_2[:,3], label ='class 1')
+    ax.scatter(class_1[:,1], class_1[:,2], class_1[:,3], label ='class 1', cmap='viridis')
+    ax.scatter(class_2[:,1], class_2[:,2], class_2[:,3], label ='class 2', cmap='viridis')
 
-    ax.set_xlabel('X Label')
-    ax.set_ylabel('Y Label')
-    ax.set_zlabel('Z Label')
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
 
     plt.show()
 
@@ -168,8 +178,8 @@ def g(a,y):
 
 if __name__ == '__main__':
     
-    
-    for i in [1]:
+        
+    for i in [1,2,3]:
         data = pd.read_csv('ds-{}.txt'.format(i), header=None, sep='\s+')
         test, train = train_test_split(data)
         test = test.to_numpy()
@@ -180,15 +190,14 @@ if __name__ == '__main__':
         for err, _comb in zip(error, combinations):
             
             mer = min_err_rate(train, test, _comb[np.argmin(err)])
-            #lst = least_squares(train, test, _comb[np.argmin(err)]) 
-            print("file: ds-{}.txt".format(i))
-            print('--------------------------------------------------')
-            print('best combo: {}'.format(_comb[np.argmin(err)])) 
-            print('--------------------------------------------------')
-            print('nearest neigbour: {}'.format(error[np.argmin(err)])) 
-            print('--------------------------------------------------')
-            print('minimum error rate: {}'.format(mer))
             
-
+            #lst = least_squares(train, test, _comb[np.argmin(err)]) 
+            print('--------------------------------------------------')
+            print("file: ds-{}.txt".format(i))
+            print('best combo: {}'.format(_comb[np.argmin(err)])) 
+            print('nearest neigbour: {}'.format(err[np.argmin(err)])) 
+            print('minimum error rate: {}'.format(mer)) 
+            print('--------------------------------------------------\n')
+            
     #min_err_rate('ds-2.txt')
     #plot_featurespace('ds-2.txt')
