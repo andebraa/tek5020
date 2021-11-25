@@ -64,5 +64,8 @@ def visualize_data():
     plt.show()
 
 
-seg = min_err_rate(tall_pap, red_pap, green_pap, image) 
+res = min_err_rate(tall_pap, red_pap, green_pap, image)
+
+plt.imshow(res)
+plt.show()
 
