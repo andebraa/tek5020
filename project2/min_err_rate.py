@@ -17,32 +17,28 @@ def min_err_rate(train1, train2, train3, test):
     # a prioi probability
 
     prio = features_train/features_test
-    print('--------prio--------')
-    print(prio)
+    #print('--------prio--------')
+    #print(prio)
     #forventingsvektor, maximum likelihood for the expectationvalue
     
-    
+    #print(1/features_train1)
+    #print('sum')
+    #print(np.sum(np.sum(train1, axis=0), axis=0))
+
     my = (1/features_train1 * np.sum(train1, axis=(0,1)), # can't use arrays due to varying shapes
             1/features_train2 * np.sum(train2, axis=(0,1)),
             1/features_train3 * np.sum(train3, axis=(0,1)))
-    
+    print('my0',my[0])
     cov = np.zeros((train1.shape[2], train1.shape[2], 3)) #three classes, and test.shape[1] is RGB
-    print(my) 
-    print(np.shape(my))
-    print(type(my)) 
-    print(type(my[0]))
-    print(np.shape(train1 - my[1]))
-    print('break')
-    print(np.shape(cov))
 
     ret = (train1 - my[0], train2 - my[1], train3 - my[2])  
-
+    print('ret[0]',ret[0])
     #cov1 = np.zeros((test.shape[1], test.shape[1]))
     for i in range(train1.shape[0]):
         for j in range(train1.shape[1]):
             # use res[:,None] intead of reshape(-1,1)
             elem = ret[0][i,j].reshape(-1,1) 
-            #print(elem.shape)
+            #print(elem.T)
             cov[:,:,0] += (elem @ elem.T) 
 
     for i in range(train2.shape[0]):

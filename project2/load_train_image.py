@@ -4,8 +4,8 @@ import matplotlib.patches as pat
 import matplotlib.pyplot as plt 
 from min_err_rate import min_err_rate
 
-image = plt.imread('figures/Bilde1.png', format = 'rgb')
-image = image[:,:,:-1]
+image = plt.imread('figures/Bilde1.png')#, format = 'rgb')
+image = image[:,:,:3]
 def addbox(box):
     
     
