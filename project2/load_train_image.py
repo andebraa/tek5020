@@ -63,9 +63,9 @@ def folders():
     image_fold = plt.imread('figures/Bilde2.png')#, format = 'rgb')
 
     ## folder boxes
-    box1_f = [[309, 707],[340, 377]] #blue folder
-    box2_f = [[750, 468], [915, 468]] #red folder
-    box3_f = [[669, 815], [936, 605]] #floor
+    box1_f = [[261, 594], [502, 383]] #blue folder
+    box2_f = [[757, 472], [906, 328]] #red folder
+    box3_f = [[673, 825], [924, 604]] #floor
 
     def visualize_folder_training_data():
 
