@@ -112,7 +112,6 @@ def min_err_rate(train0, train1, train2, test):
     red_pap = [150,0,0]
     green_pap = [0,150,0] 
     colours = [long_pap, red_pap, green_pap] #colours for different segments
-    RGB = [[1, 0.8, 0.3], [1, 0.7, 0.9], [0.1, 0.8, 0.7]]
 
     res = np.zeros((test.shape))
     print(res.shape)
@@ -122,7 +121,7 @@ def min_err_rate(train0, train1, train2, test):
             g1 = test[i,j]@W[1]@test[i,j].T + w[1].T@test[i,j].T + Wi0[1]
             g2 = test[i,j]@W[2]@test[i,j].T + w[2].T@test[i,j].T + Wi0[2]
 
-            res[i,j] = RGB[np.argmax(np.array((g0,g1,g2)))]
+            res[i,j] = colours[np.argmax(np.array((g0,g1,g2)))]
             #err_rate += res
     #err_rate /= test.shape[0]
 

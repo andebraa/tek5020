@@ -3,10 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from itertools import combinations as comb
 
-def g(x):
-    pass
-
-
 def train_test_split(data):
     """
     Script for reading and splitting data from datafiles.
@@ -154,26 +150,39 @@ def plot_featurespace(filename):
 
     plt.show()
 
-def least_squares(train, test, bc):
-    test_ = test[:, 1:]
-    test_ = test_[:, bc] #best combo
-    train_ = train[:,1:] #neglecting true bool for now
-    train_ = train_[:,bc]
+def least_squares(train_, test_, bc):
+    #bc: best combo 
+    train = train_[:, 1:]
+    train = train[:, bc]
+    test = test_[:, 1:]
+    test = test[:, bc]
 
-    idx1 = train[:, 0] == 1
-    idx2 = ~idx1
-    train_class1 = train_[idx1]
-    train_class2 = train_[idx2]
-    print(train_class1)
-
-
+    indx1 = train_[:, 0] == 1
+    indx2 = ~indx1
     
-    a = np.linalg.pinv(Y.T.dot(Y)).dot(Y.T.dot(b))
+    Y = np.c_[np.ones((train.shape[0], 1)), train]
+    b = indx1 + (-1)*indx2
+    
+    a_ = a(Y,b)
+
+    err_rate = 0
+    for i in range(test.shape[0]):
+        g_ = g(test[i], a_)
+        if g_ > 0:
+            class_error = test_[i, 0] != 1
+        else:
+            class_error = test_[i, 0] != 2
+        err_rate += class_error
+    err_rate /= test.shape[0]
+
+    return err_rate
     
 
+def a(Y,b):
+    return np.linalg.pinv(Y.T @ Y) @ Y.T @ b
 
-
-def g(a,y):
+def g(y,a):
+    y = np.append(1,y)
     return a.T.dot(y.T) 
 
 if __name__ == '__main__':
@@ -190,13 +199,14 @@ if __name__ == '__main__':
         for err, _comb in zip(error, combinations):
             
             mer = min_err_rate(train, test, _comb[np.argmin(err)])
-            
-            #lst = least_squares(train, test, _comb[np.argmin(err)]) 
+            lst_ = least_squares(train, test, _comb[np.argmin(err)])
+
             print('--------------------------------------------------')
             print("file: ds-{}.txt".format(i))
             print('best combo: {}'.format(_comb[np.argmin(err)])) 
             print('nearest neigbour: {}'.format(err[np.argmin(err)])) 
             print('minimum error rate: {}'.format(mer)) 
+            print('least squares error rate: {}'.format(lst_))
             print('--------------------------------------------------\n')
             
     #min_err_rate('ds-2.txt')
